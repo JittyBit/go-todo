@@ -12,6 +12,6 @@ func greet(w http.ResponseWriter, r *http.Request) {
 
 func main() {
   mux := http.NewServeMux()
-	mux.HandleFunc("/", greet)
+  mux.HandleFunc("/", greet)
   http.ListenAndServe(":8080", mux)
 }
