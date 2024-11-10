@@ -10,10 +10,23 @@ import (
 
 
 // Custom Error Handling
-//TODO: set up custom DBError and SQLError
 // DBError for issues working with the database
 // SQLError for errors running queries
 // (might merge the two depending on what happens)
+type DBError struct {
+  Code int16
+  Err string
+}
+
+func (e *DBError) Error() string {
+  return fmt.Sprintf("DBError Code %3d: %s", e.Code, e.Err)
+}
+
+func NewDBError(code int16, error string) error {
+  return &DBError{code, error}
+}
+
+
 type SQLError struct {
   Code int16
   Err string
@@ -24,7 +37,7 @@ func (e *SQLError) Error() string {
 } 
 
 func NewSQLError(code int16, error string) error {
-  return &SQLError{code,error}
+  return &SQLError{code, error}
 }
 
 
@@ -38,11 +51,11 @@ type DB struct {
 func NewDB(connectionString string) (*DB, error) {
 	db, err := sqlx.Open("sqlite3", connectionString)
 	if err != nil {
-		return nil, fmt.Errorf("DBError: ERROR OPENING NEW DATABASE: %w", err)
+    return nil, NewDBError(500, fmt.Sprintf("ERROR OPENING DATABASE: %v", err))
 	}
 
   if err = db.Ping(); err != nil {
-    return nil, fmt.Errorf("DBError: ERROR CONNECTING TO DATABASE: %w", err)
+    return nil, NewDBError(500, fmt.Sprintf("ERROR CONNECTING TO DATABASE: %v", err))
   }
 
 	return &DB{db}, nil
